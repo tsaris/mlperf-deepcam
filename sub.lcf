@@ -4,7 +4,7 @@
 #BSUB -J climate
 #BSUB -o logs/climate.o%J
 #BSUB -W 2:00
-#BSUB -nnodes 1
+#BSUB -nnodes 2
 #BSUB -alloc_flags "nvme smt4"
 #BSUB -N
 #####BSUB -q debug

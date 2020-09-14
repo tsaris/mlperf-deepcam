@@ -26,7 +26,7 @@ import random
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 def compute_score(prediction, gt, num_classes, device_id, type="iou", weights=None):

@@ -36,6 +36,9 @@ try:
 except ImportError:
     pass
 
+# Need this for basemap since it is broken on conda
+os.environ["PROJ_LIB"] = '/gpfs/alpine/stf011/proj-shared/atsaris/summit_envs/ibm_clone_mlperf/conda_env/share/proj/'
+
 # mlperf logger
 import utils.mlperf_log_utils as mll
 
@@ -63,7 +66,7 @@ except ImportError:
 
 #vis stuff
 from PIL import Image
-from utils import visualizer as vizc
+#from utils import visualizer as vizc
 
 #DDP
 import torch.distributed as dist
@@ -305,8 +308,8 @@ def main(pargs):
         logger.log_event(key = "invalid_submission")
     
     #for visualization
-    if visualize:
-        viz = vizc.CamVisualizer()   
+    #if visualize:
+    #    viz = vizc.CamVisualizer()   
     
     # Train network
     if have_wandb and (comm_rank == 0):
@@ -372,7 +375,7 @@ def main(pargs):
                 outputfile = os.path.join(plot_dir, outputfile)
                 
                 # plot
-                viz.plot(filename[sample_idx], outputfile, plot_input, plot_prediction, plot_label)
+                #viz.plot(filename[sample_idx], outputfile, plot_input, plot_prediction, plot_label)
                 
                 #log if requested
                 if have_wandb:
@@ -458,7 +461,7 @@ def main(pargs):
                             outputfile = os.path.join(plot_dir, outputfile)
                             
                             #plot
-                            viz.plot(filename[sample_idx], outputfile, plot_input, plot_prediction, plot_label)
+                            #viz.plot(filename[sample_idx], outputfile, plot_input, plot_prediction, plot_label)
                             visualized = True
                             
                             #log if requested

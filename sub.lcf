@@ -1,0 +1,25 @@
+#!/bin/bash
+# Begin LSF directives
+#BSUB -P stf011
+#BSUB -J climate
+#BSUB -o logs/climate.o%J
+#BSUB -W 2:00
+#BSUB -nnodes 1
+#BSUB -alloc_flags "nvme smt4"
+#BSUB -N
+#####BSUB -q debug
+# End LSF directives and begin shell commands
+
+
+nnodes=$(cat ${LSB_DJOB_HOSTFILE} | sort | uniq | grep -v login | grep -v batch | wc -l)
+
+OUTPUTDIR="/gpfs/alpine/world-shared/stf011/atsaris/climate_data_2020/All-Hist_small_split"
+
+export PATH=/gpfs/alpine/stf011/proj-shared/atsaris/summit_envs/ibm_clone_mlperf/conda_env/bin/:$PATH
+export LD_LIBRARY_PATH=/gpfs/alpine/stf011/proj-shared/atsaris/summit_envs/ibm_clone_mlperf/conda_env/bin/:$LD_LIBRARY_PATH
+
+jsrun -n${nnodes} -a4 -c20 -g4 -r1 --bind=proportional-packed:5 --launch_distribution=packed \
+    python src/deepCam/train_hdf5_ddp.py \
+    --data_dir_prefix ${OUTPUTDIR} \
+    --output_dir /gpfs/alpine/stf011/world-shared/atsaris/climate_output_2020_test \
+    --local_batch_size 2 --max_epochs 1 --run_tag 004

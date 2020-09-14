@@ -64,20 +64,35 @@ def get_size():
 def init(method):
     #get master address and port
     if method == "nccl-openmpi":
-        addrport = os.getenv("PMIX_SERVER_URI2").split("//")[1]
+        #addrport = os.getenv("PMIX_SERVER_URI2").split("//")[1]
         #use that URI
-        address = addrport.split(":")[0]
+        #address = addrport.split(":")[0]
         #use the default pytorch port
-        port = "29500"
-        os.environ["MASTER_ADDR"] = address
-        os.environ["MASTER_PORT"] = port
-        rank = int(os.getenv('OMPI_COMM_WORLD_RANK',0))
-        world_size = int(os.getenv("OMPI_COMM_WORLD_SIZE",0))
+        #port = "29500"
+        #os.environ["MASTER_ADDR"] = address
+        #os.environ["MASTER_PORT"] = port
+        #rank = int(os.getenv('OMPI_COMM_WORLD_RANK',0))
+        #world_size = int(os.getenv("OMPI_COMM_WORLD_SIZE",0))
         
         #init DDP
-        dist.init_process_group(backend = "nccl",
-                                rank = rank,
-                                world_size = world_size)
+        #dist.init_process_group(backend = "nccl",
+        #                        rank = rank,
+        #                        world_size = world_size)
+
+
+        world_size = int(os.environ['OMPI_COMM_WORLD_SIZE'])
+        world_rank = int(os.environ['OMPI_COMM_WORLD_RANK'])
+        local_rank = int(os.environ['OMPI_COMM_WORLD_LOCAL_RANK'])
+
+        import subprocess
+        get_master = "echo $(cat {} | sort | uniq | grep -v batch | grep -v login | head -1)".format(os.environ['LSB_DJOB_HOSTFILE'])
+        os.environ['MASTER_ADDR'] = str(subprocess.check_output(get_master, shell=True))[2:-3]
+        os.environ['MASTER_PORT'] = "23456"
+        os.environ['WORLD_SIZE'] = os.environ['OMPI_COMM_WORLD_SIZE']
+        os.environ['RANK'] = os.environ['OMPI_COMM_WORLD_RANK']
+        dist.init_process_group('nccl',
+                                rank=world_rank, world_size=world_size)
+
         
     elif method == "nccl-slurm":
         rank = int(os.getenv("PMIX_RANK"))
